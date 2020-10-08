@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { View, AsyncStorage, KeyboardAvoidingView, Platform, Image, Text, TextInput,
+import React, { useState, useEffect } from 'react';
+import { View, KeyboardAvoidingView, Platform, Image, Text, TextInput,
     StyleSheet } from 'react-native';
 import { TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 
 import api from "../Services/api";
 import logo from '../../assets/logo.png';
@@ -11,15 +12,21 @@ export default function Login({ navigation  }) {
     const [email, setEmail] = useState('');
     const [cidade, setCidade] = useState('');
 
+    useEffect( () => {
+        AsyncStorage.getItem('user').then(user => {
+            if (user) {
+                navigation.navigate('List');
+            }
+        })
+    }, []);
+
     async function handleSubmit() {
-        console.log(email);
-        console.log(cidade);
         const response = await api.post('/sessions', {
             email
         })
         const { _id } = response.data;
-        //await AsyncStorage.setItem('user', _id);
-        //await AsyncStorage.setItem('cidade', cidade)
+        await AsyncStorage.setItem('user', _id);
+        await AsyncStorage.setItem('cidade', cidade)
 
         navigation.navigate('List');
     }
@@ -112,5 +119,16 @@ const styles = StyleSheet.create({
         color: '#FFF',
         fontWeight: 'bold',
         fontSize: 16,
+    },
+    company : {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#333',
+        marginTop: 10,
+    },
+    price : {
+        fontSize: 15,
+        color: '#999',
+        marginTop: 5,
     },
 });
